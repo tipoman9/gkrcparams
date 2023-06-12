@@ -1,19 +1,19 @@
-#include "type.h"
-#include <gk_api_venc.h>
+#include <hi_type.h>
+#include <mpi_venc.h>
 
 int main() {
   VENC_RC_PARAM_S params = {0};
 
-  int ret = GK_API_VENC_GetRcParam(0, &params);
-  if (ret != GK_SUCCESS) {
-    fprintf(stderr, "GK_API_VENC_GetRcParam error %d\n", ret);
+  int ret = HI_MPI_VENC_GetRcParam(0, &params);
+  if (ret != HI_SUCCESS) {
+    fprintf(stderr, "HI_MPI_VENC_GetRcParam error %d\n", ret);
     exit(1);
   }
 
   params.stParamH265CVbr.u32MaxIprop = 100;
-  ret = GK_API_VENC_SetRcParam(0, &params);
-  if (ret != GK_SUCCESS) {
-    fprintf(stderr, "GK_API_VENC_SetRcParam error %d\n", ret);
+  ret = HI_MPI_VENC_SetRcParam(0, &params);
+  if (ret != HI_SUCCESS) {
+    fprintf(stderr, "HI_MPI_VENC_SetRcParam error %d\n", ret);
     exit(1);
   }
 }
