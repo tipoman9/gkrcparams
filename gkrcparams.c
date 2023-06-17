@@ -12,38 +12,26 @@ int main(int argc, char **argv)
       {"MinQp", required_argument, NULL, 'b'},
       {"MaxReEnc", required_argument, NULL, 'c'},
       {"MaxQpD", required_argument, NULL, 'd'},
+      {"RefreshNum", required_argument, NULL, 'e'},
       {"help", no_argument, NULL, 'h'},
       {NULL, 0, NULL, 0}};
 
   int MaxIprop = -1, MinIprop = -1;
-  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1;
+  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1, RefreshNum=-1;
 
   int opt;
   int long_index = 0;
-  while ((opt = getopt_long_only(argc, argv, "", long_options,
-                                 &long_index)) != -1)
+  while ((opt = getopt_long_only(argc, argv, "", long_options, &long_index)) != -1)
   {
     switch (opt)
     {
-    case 'm':
-      MaxIprop = atoi(optarg);
-      break;
-    case 'n':
-      MinIprop = atoi(optarg);
-      break;
-    case 'a':
-      MaxQp = atoi(optarg);
-      break;
-    case 'b':
-      MinQp = atoi(optarg);
-      break;
-    case 'c':
-      MaxReEnc = atoi(optarg);
-      break;
-
-    case 'd':
-      MaxQpD = atoi(optarg);
-      break;
+    case 'm': MaxIprop = atoi(optarg); break;
+    case 'n': MinIprop = atoi(optarg); break;
+    case 'a': MaxQp = atoi(optarg); break;
+    case 'b': MinQp = atoi(optarg); break;
+    case 'c': MaxReEnc = atoi(optarg); break;
+    case 'd': MaxQpD = atoi(optarg); break;
+    case 'e': RefreshNum = atoi(optarg); break;     
 
     case 'h':
     default:
@@ -55,6 +43,7 @@ int main(int argc, char **argv)
              "  --MinQp     \n"
              "  --MaxReEnc     \n"
              "  --MaxQpD     \n"
+             "  --RefreshNum \n"
              "  --help          Display this help\n"
              "sample:  \n"
              "rcparams --MaxI 10 --MinI 1 \n");
@@ -65,8 +54,7 @@ int main(int argc, char **argv)
   VENC_RC_PARAM_S params = {0};
 
   int ret = GK_API_VENC_GetRcParam(0, &params);
-  if (ret != GK_SUCCESS)
-  {
+  if (ret != GK_SUCCESS){
     fprintf(stderr, "GK_API_VENC_GetRcParam error %d\n", ret);
     exit(1);
   }
@@ -105,11 +93,58 @@ int main(int argc, char **argv)
   // params.stParamH265CVbr.u32MinQp   = 1;
 
   ret = GK_API_VENC_SetRcParam(0, &params);
-  if (ret != GK_SUCCESS)
-  {
+  if (ret != GK_SUCCESS){
     fprintf(stderr, "GK_API_VENC_SetRcParam error %d\n", ret);
     exit(1);
   }
+
+  
+  VENC_INTRA_REFRESH_S stIntraRefresh;
+	if ((ret = GK_API_VENC_GetIntraRefresh( 0, &stIntraRefresh)) != GK_SUCCESS) {			
+     fprintf(stderr, "Failed GetIntraRefresh %d\n", ret);
+     exit(1);
+		
+   }
+
+  //RefreshNum = (RefreshNum > -1) ? RefreshNum : stIntraRefresh.u32RefreshNum;
+
+  fprintf(stderr, "enIntraRefreshMode = %d , bRefreshEnable = %d, u32ReqIQp= %d\n", 
+  stIntraRefresh.enIntraRefreshMode,stIntraRefresh.bRefreshEnable,stIntraRefresh.u32ReqIQp);
+
+  fprintf(stderr, "stIntraRefresh.u32RefreshNum = %d , was %d\n", (RefreshNum > -1) ? RefreshNum : stIntraRefresh.u32RefreshNum, stIntraRefresh.u32RefreshNum);
+  
+  if (RefreshNum>-1){
+    stIntraRefresh.u32RefreshNum=RefreshNum;
+    stIntraRefresh.enIntraRefreshMode=INTRA_REFRESH_ROW;
+    stIntraRefresh.bRefreshEnable = GK_TRUE;
+    stIntraRefresh.u32ReqIQp=GK_FALSE;
+  }
+
+  ret=GK_API_VENC_SetIntraRefresh(0, &stIntraRefresh);
+  if (ret != GK_SUCCESS) {
+    fprintf(stderr, "GK_API_VENC_SetIntraRefresh error %d\n", ret);
+    exit(1);
+  }
+
+/*
+  VENC_INTRA_REFRESH_S stIntraRefresh2 = {
+            .enIntraRefreshMode = INTRA_REFRESH_ROW,
+            .u32RefreshNum =  32//chn->size.height / chn->framesInGop,
+            .bRefreshEnable = GK_TRUE,
+            .u32ReqIQp = GK_FALSE,
+        };
+        ret = HI_MPI_VENC_SetIntraRefresh(  chn->venc_chn, &stIntraRefresh);
+*/
+
+/*
+GK_S32 GK_API_VENC_SetIntraRefresh(VENC_CHN VeChn,
+				   const VENC_INTRA_REFRESH_S *pstIntraRefresh);
+GK_S32 GK_API_VENC_GetIntraRefresh(VENC_CHN VeChn,
+				   VENC_INTRA_REFRESH_S *pstIntraRefresh);
+*/
+
+
+
 }
 
 /*
