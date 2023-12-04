@@ -35,16 +35,16 @@ int main(int argc, char **argv)
 
     case 'h':
     default:
-      printf("Usage: rcparams [OPTIONS]\n"
-             "Where:\n"
-             "  --MaxI      \n"
-             "  --MinI      \n"
-             "  --MaxQp      \n"
-             "  --MinQp     \n"
-             "  --MaxReEnc     \n"
-             "  --MaxQpD     \n"
-             "  --RefreshNum \n"
-             "  --help          Display this help\n"
+      printf("Usage: rcparams [OPTIONS][value]\n"
+             "Where [OPTIONS]:\n"
+             "  --MaxI     u32MaxIprop[u32MinIprop,100]    \n"
+             "  --MinI     u32MinIprop[1,u32MaxIprop]   \n"
+             "  --MaxQp    u32MaxQp[MinQp, 51]  \n"
+             "  --MinQp    u32MinQp[0, 51]   \n"
+             "  --MaxReEnc s32MaxReEncodeTimes[0, 3]     \n"
+             "  --MaxQpD   u32MaxQpDelta[0, 4]   \n"
+             "  --RefreshNum u32RefreshNum (enables IntraRefresh) \n"
+             "  --help      Display this help\n"
              "sample:  \n"
              "rcparams --MaxI 10 --MinI 1 \n");
       exit(1);
