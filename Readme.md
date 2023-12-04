@@ -6,6 +6,7 @@ Sample usage:
 gkrcparams --MaxQp 30 --MaxI 2
 
 Tested on gk7205 and h3516
+majestic must running when calling the app. Changes won't persist if majestic is restarted.
 
 # ToDo:
 Should be possible to link to OpenIPC repo downloaded via BuildRoot process.
