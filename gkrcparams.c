@@ -17,11 +17,12 @@ int main(int argc, char **argv)
       {"MinQpD", required_argument, NULL, 'e'},
       {"ExtraBitPct", required_argument, NULL, 'p'},
       {"RefreshNum", required_argument, NULL, 'r'},
+      {"QpMapEn", required_argument, NULL, 'q'},
       {"help", no_argument, NULL, 'h'},
       {NULL, 0, NULL, 0}};
 
   int MaxIprop = -1, MinIprop = -1;
-  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1,  MinQpD = -1,  RefreshNum=-1, MaxIQp = -1, MinIQp = -1, ExtraBitPct=-1;
+  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1,  MinQpD = -1,  RefreshNum=-1, MaxIQp = -1, MinIQp = -1, ExtraBitPct=-1, QpMapEn=-1;
 
   int opt;
   int long_index = 0;
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     case 'd': MaxQpD = atoi(optarg); break;
     case 'e': MinQpD = atoi(optarg); break;
     case 'p': ExtraBitPct = atoi(optarg); break;
+    case 'q': QpMapEn = atoi(optarg); break;
 
     case 'r': RefreshNum = atoi(optarg); break;     
 
@@ -57,6 +59,7 @@ int main(int argc, char **argv)
              "  --MinQpD   u32MinQpDelta[0, 4]   \n"
              "  --RefreshNum u32RefreshNum (enables IntraRefresh) \n"
              "  --ExtraBitPct u32ExtraBitPct (0-100) \n"                 
+             "  --QpMapEn  QpMapEnable [0,1] \n"                              
              "  --help      Display this help\n"
              "sample:  \n"
              "rcparams --MaxI 10 --MinI 1 \n");
@@ -72,55 +75,59 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  MaxIprop = (MaxIprop > -1) ? MaxIprop : params.stParamH265CVbr.u32MaxIprop;
-  MinIprop = (MinIprop > -1) ? MinIprop : params.stParamH265CVbr.u32MinIprop;
-  fprintf(stderr, "stParamH265CVbr.u32MaxIprop = %d , was %d\n", MaxIprop, params.stParamH265CVbr.u32MaxIprop);
-  params.stParamH265CVbr.u32MaxIprop = MaxIprop;
+  MaxIprop = (MaxIprop > -1) ? MaxIprop : params.stParamH265Cbr.u32MaxIprop;
+  MinIprop = (MinIprop > -1) ? MinIprop : params.stParamH265Cbr.u32MinIprop;
+  fprintf(stderr, "stParamH265Cbr.u32MaxIprop = %d , was %d\n", MaxIprop, params.stParamH265Cbr.u32MaxIprop);
+  params.stParamH265Cbr.u32MaxIprop = MaxIprop;
 
-  fprintf(stderr, "stParamH265CVbr.u32MinIprop = %d , was %d\n", MinIprop, params.stParamH265CVbr.u32MinIprop);
-  params.stParamH265CVbr.u32MinIprop = MinIprop;
+  fprintf(stderr, "stParamH265Cbr.u32MinIprop = %d , was %d\n", MinIprop, params.stParamH265Cbr.u32MinIprop);
+  params.stParamH265Cbr.u32MinIprop = MinIprop;
 
-  MaxQp = (MaxQp > -1) ? MaxQp : params.stParamH265CVbr.u32MaxQp;
-  MinQp = (MinQp > -1) ? MinQp : params.stParamH265CVbr.u32MinQp;
+  MaxQp = (MaxQp > -1) ? MaxQp : params.stParamH265Cbr.u32MaxQp;
+  MinQp = (MinQp > -1) ? MinQp : params.stParamH265Cbr.u32MinQp;
 
-  fprintf(stderr, "stParamH265CVbr.u32MaxQp = %d , was %d\n", MaxQp, params.stParamH265CVbr.u32MaxQp);
-  fprintf(stderr, "stParamH265CVbr.u32MinQp = %d , was %d\n", MinQp, params.stParamH265CVbr.u32MinQp);
-  params.stParamH265CVbr.u32MaxQp = MaxQp;
-  params.stParamH265CVbr.u32MinQp = MinQp;
+  fprintf(stderr, "stParamH265Cbr.u32MaxQp = %d , was %d\n", MaxQp, params.stParamH265Cbr.u32MaxQp);
+  fprintf(stderr, "stParamH265Cbr.u32MinQp = %d , was %d\n", MinQp, params.stParamH265Cbr.u32MinQp);
+  params.stParamH265Cbr.u32MaxQp = MaxQp;
+  params.stParamH265Cbr.u32MinQp = MinQp;
 
-  MaxIQp = (MaxIQp > -1) ? MaxIQp : params.stParamH265CVbr.u32MaxIQp;
-  MinIQp = (MinIQp > -1) ? MinIQp : params.stParamH265CVbr.u32MinIQp;
+  MaxIQp = (MaxIQp > -1) ? MaxIQp : params.stParamH265Cbr.u32MaxIQp;
+  MinIQp = (MinIQp > -1) ? MinIQp : params.stParamH265Cbr.u32MinIQp;
 
-  fprintf(stderr, "stParamH265CVbr.u32MaxIQp = %d , was %d\n", MaxIQp, params.stParamH265CVbr.u32MaxIQp);
-  fprintf(stderr, "stParamH265CVbr.u32MinIQp = %d , was %d\n", MinIQp, params.stParamH265CVbr.u32MinIQp);
-  params.stParamH265CVbr.u32MaxIQp = MaxIQp;
-  params.stParamH265CVbr.u32MinIQp = MinIQp;
-
-  fprintf(stderr, "stParamH265CVbr.bQpMapEn = %d \n", params.stParamH265CVbr.bQpMapEn);
-
-  MaxReEnc = (MaxReEnc > -1) ? MaxReEnc : params.stParamH265CVbr.s32MaxReEncodeTimes;
-  fprintf(stderr, "stParamH265CVbr.s32MaxReEncodeTimes = %d, was %d \n", MaxReEnc, params.stParamH265CVbr.s32MaxReEncodeTimes);
-  params.stParamH265CVbr.s32MaxReEncodeTimes = MaxReEnc;
-
-  MaxQpD = (MaxQpD > -1) ? MaxQpD : params.stParamH265CVbr.u32MaxQpDelta;
-  fprintf(stderr, "stParamH265CVbr.u32MaxQpDelta   = %d, was %d  \n", MaxQpD, params.stParamH265CVbr.u32MaxQpDelta);
-  params.stParamH265CVbr.u32MaxQpDelta = MaxQpD;
-
-  MinQpD = (MinQpD > -1) ? MinQpD : params.stParamH265CVbr.u32MinQpDelta;
-  fprintf(stderr, "stParamH265CVbr.u32MinQpDelta   = %d, was %d  \n", MinQpD, params.stParamH265CVbr.u32MinQpDelta);
-  params.stParamH265CVbr.u32MinQpDelta = MinQpD;
+  fprintf(stderr, "stParamH265Cbr.u32MaxIQp = %d , was %d\n", MaxIQp, params.stParamH265Cbr.u32MaxIQp);
+  fprintf(stderr, "stParamH265Cbr.u32MinIQp = %d , was %d\n", MinIQp, params.stParamH265Cbr.u32MinIQp);
+  params.stParamH265Cbr.u32MaxIQp = MaxIQp;
+  params.stParamH265Cbr.u32MinIQp = MinIQp;
 
 
-  ExtraBitPct = (ExtraBitPct > -1) ? ExtraBitPct : params.stParamH265CVbr.u32ExtraBitPercent;
-  fprintf(stderr, "stParamH265CVbr.u32ExtraBitPercent   = %d, was %d  \n", ExtraBitPct, params.stParamH265CVbr.u32ExtraBitPercent);
-  params.stParamH265CVbr.u32ExtraBitPercent = ExtraBitPct;
+  MaxReEnc = (MaxReEnc > -1) ? MaxReEnc : params.stParamH265Cbr.s32MaxReEncodeTimes;
+  fprintf(stderr, "stParamH265Cbr.s32MaxReEncodeTimes = %d, was %d \n", MaxReEnc, params.stParamH265Cbr.s32MaxReEncodeTimes);
+  params.stParamH265Cbr.s32MaxReEncodeTimes = MaxReEnc;
 
-  fprintf(stderr, "stParamH265CVbr.enQpMapMode = %d \n", params.stParamH265CVbr.enQpMapMode);
-  fprintf(stderr, "stParamH265CVbr.u32ExtraBitPercent = %d \n", params.stParamH265CVbr.u32ExtraBitPercent);
-  fprintf(stderr, "stParamH265CVbr.u32LongTermStatTimeUnit = %d \n", params.stParamH265CVbr.u32LongTermStatTimeUnit);
-  fprintf(stderr, "stParamH265AVbr.u32MaxIprop = %d \n", params.stParamH265AVbr.u32MaxIprop);
+  QpMapEn = (QpMapEn > -1) ? QpMapEn : params.stParamH265Cbr.bQpMapEn;
+  fprintf(stderr, "stParamH265Cbr.bQpMapEn = %d, was %d \n", QpMapEn, params.stParamH265Cbr.bQpMapEn);
+  params.stParamH265Cbr.bQpMapEn = QpMapEn;
 
-  // params.stParamH265CVbr.u32MinQp   = 1;
+/* for CVbr only
+  MaxQpD = (MaxQpD > -1) ? MaxQpD : params.stParamH265Cbr.u32MaxQpDelta;
+  fprintf(stderr, "stParamH265Cbr.u32MaxQpDelta   = %d, was %d  \n", MaxQpD, params.stParamH265Cbr.u32MaxQpDelta);
+  params.stParamH265Cbr.u32MaxQpDelta = MaxQpD;
+
+  MinQpD = (MinQpD > -1) ? MinQpD : params.stParamH265Cbr.u32MinQpDelta;
+  fprintf(stderr, "stParamH265Cbr.u32MinQpDelta   = %d, was %d  \n", MinQpD, params.stParamH265Cbr.u32MinQpDelta);
+  params.stParamH265Cbr.u32MinQpDelta = MinQpD;
+
+
+  ExtraBitPct = (ExtraBitPct > -1) ? ExtraBitPct : params.stParamH265Cbr.u32ExtraBitPercent;
+  fprintf(stderr, "stParamH265Cbr.u32ExtraBitPercent   = %d, was %d  \n", ExtraBitPct, params.stParamH265Cbr.u32ExtraBitPercent);
+  params.stParamH265Cbr.u32ExtraBitPercent = ExtraBitPct;
+*/
+  fprintf(stderr, "stParamH265Cbr.enQpMapMode = %d \n", params.stParamH265Cbr.enQpMapMode);
+//  fprintf(stderr, "stParamH265Cbr.u32ExtraBitPercent = %d \n", params.stParamH265Cbr.u32ExtraBitPercent);
+//  fprintf(stderr, "stParamH265Cbr.u32LongTermStatTimeUnit = %d \n", params.stParamH265Cbr.u32LongTermStatTimeUnit);
+  
+
+  // params.stParamH265Cbr.u32MinQp   = 1;
 
   ret = GK_API_VENC_SetRcParam(0, &params);
   if (ret != GK_SUCCESS){
