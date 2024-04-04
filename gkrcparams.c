@@ -10,14 +10,18 @@ int main(int argc, char **argv)
       {"MinI", required_argument, NULL, 'n'},
       {"MaxQp", required_argument, NULL, 'a'},
       {"MinQp", required_argument, NULL, 'b'},
+      {"MaxIQp", required_argument, NULL, 'k'},
+      {"MinIQp", required_argument, NULL, 'l'},
       {"MaxReEnc", required_argument, NULL, 'c'},
       {"MaxQpD", required_argument, NULL, 'd'},
-      {"RefreshNum", required_argument, NULL, 'e'},
+      {"MinQpD", required_argument, NULL, 'e'},
+      {"ExtraBitPct", required_argument, NULL, 'p'},
+      {"RefreshNum", required_argument, NULL, 'r'},
       {"help", no_argument, NULL, 'h'},
       {NULL, 0, NULL, 0}};
 
   int MaxIprop = -1, MinIprop = -1;
-  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1, RefreshNum=-1;
+  int MaxQp = -1, MinQp = -1, MaxReEnc = -1, MaxQpD = -1,  MinQpD = -1,  RefreshNum=-1, MaxIQp = -1, MinIQp = -1, ExtraBitPct=-1;
 
   int opt;
   int long_index = 0;
@@ -29,9 +33,14 @@ int main(int argc, char **argv)
     case 'n': MinIprop = atoi(optarg); break;
     case 'a': MaxQp = atoi(optarg); break;
     case 'b': MinQp = atoi(optarg); break;
+    case 'k': MaxIQp = atoi(optarg); break;
+    case 'l': MinIQp = atoi(optarg); break;
     case 'c': MaxReEnc = atoi(optarg); break;
     case 'd': MaxQpD = atoi(optarg); break;
-    case 'e': RefreshNum = atoi(optarg); break;     
+    case 'e': MinQpD = atoi(optarg); break;
+    case 'p': ExtraBitPct = atoi(optarg); break;
+
+    case 'r': RefreshNum = atoi(optarg); break;     
 
     case 'h':
     default:
@@ -41,9 +50,13 @@ int main(int argc, char **argv)
              "  --MinI     u32MinIprop[1,u32MaxIprop]   \n"
              "  --MaxQp    u32MaxQp[MinQp, 51]  \n"
              "  --MinQp    u32MinQp[0, 51]   \n"
+             "  --MaxIQp    u32MaxIQp, default 45  \n"
+             "  --MinIQp    u32MinIQp, default 10   \n"
              "  --MaxReEnc s32MaxReEncodeTimes[0, 3]     \n"
              "  --MaxQpD   u32MaxQpDelta[0, 4]   \n"
+             "  --MinQpD   u32MinQpDelta[0, 4]   \n"
              "  --RefreshNum u32RefreshNum (enables IntraRefresh) \n"
+             "  --ExtraBitPct u32ExtraBitPct (0-100) \n"                 
              "  --help      Display this help\n"
              "sample:  \n"
              "rcparams --MaxI 10 --MinI 1 \n");
@@ -75,6 +88,14 @@ int main(int argc, char **argv)
   params.stParamH265CVbr.u32MaxQp = MaxQp;
   params.stParamH265CVbr.u32MinQp = MinQp;
 
+  MaxIQp = (MaxIQp > -1) ? MaxIQp : params.stParamH265CVbr.u32MaxIQp;
+  MinIQp = (MinIQp > -1) ? MinIQp : params.stParamH265CVbr.u32MinIQp;
+
+  fprintf(stderr, "stParamH265CVbr.u32MaxIQp = %d , was %d\n", MaxIQp, params.stParamH265CVbr.u32MaxIQp);
+  fprintf(stderr, "stParamH265CVbr.u32MinIQp = %d , was %d\n", MinIQp, params.stParamH265CVbr.u32MinIQp);
+  params.stParamH265CVbr.u32MaxIQp = MaxIQp;
+  params.stParamH265CVbr.u32MinIQp = MinIQp;
+
   fprintf(stderr, "stParamH265CVbr.bQpMapEn = %d \n", params.stParamH265CVbr.bQpMapEn);
 
   MaxReEnc = (MaxReEnc > -1) ? MaxReEnc : params.stParamH265CVbr.s32MaxReEncodeTimes;
@@ -84,6 +105,15 @@ int main(int argc, char **argv)
   MaxQpD = (MaxQpD > -1) ? MaxQpD : params.stParamH265CVbr.u32MaxQpDelta;
   fprintf(stderr, "stParamH265CVbr.u32MaxQpDelta   = %d, was %d  \n", MaxQpD, params.stParamH265CVbr.u32MaxQpDelta);
   params.stParamH265CVbr.u32MaxQpDelta = MaxQpD;
+
+  MinQpD = (MinQpD > -1) ? MinQpD : params.stParamH265CVbr.u32MinQpDelta;
+  fprintf(stderr, "stParamH265CVbr.u32MinQpDelta   = %d, was %d  \n", MinQpD, params.stParamH265CVbr.u32MinQpDelta);
+  params.stParamH265CVbr.u32MinQpDelta = MinQpD;
+
+
+  ExtraBitPct = (ExtraBitPct > -1) ? ExtraBitPct : params.stParamH265CVbr.u32ExtraBitPercent;
+  fprintf(stderr, "stParamH265CVbr.u32ExtraBitPercent   = %d, was %d  \n", ExtraBitPct, params.stParamH265CVbr.u32ExtraBitPercent);
+  params.stParamH265CVbr.u32ExtraBitPercent = ExtraBitPct;
 
   fprintf(stderr, "stParamH265CVbr.enQpMapMode = %d \n", params.stParamH265CVbr.enQpMapMode);
   fprintf(stderr, "stParamH265CVbr.u32ExtraBitPercent = %d \n", params.stParamH265CVbr.u32ExtraBitPercent);
