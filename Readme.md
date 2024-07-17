@@ -1,9 +1,37 @@
 # Tool for changning HiSilicon/Goke encoder params.
-To compile download and extract this repo, then change TPATH= and MPP= accordingly.
-https://github.com/OpenIPC/silicon_research/tree/474850aefa7e0a141d85c91589caab3c68910787/sdk/gk7205v300/gmp
 
-Sample usage:
-gkrcparams --MaxQp 30 --MaxI 2
+# How to Compile
+Download and compile OpenIPC firmware in ```< OpenIPC >```  
+Copy gkrcparams.c to ```<OpenIPC>/openipc-firmware/output/build/majestic-plugins-HEAD/hisilicon``` then    
+```cd <OpenIPC>/openipc-firmware/output/build/majestic-plugins-HEAD```  
+then run
+```
+<OpenIPC>/openipc-firmware/output/per-package/majestic-plugins/host/bin/arm-openipc-linux-musleabi-gcc \
+    hisilicon/gkrcparams.c \
+	-I. \
+    -Ihisilicon/include \
+    -L/home/home/src/OpenIPC/openipc-firmware/output/target/usr/lib \
+    -lisp \
+	-lmpi \
+	-lmd \
+    -lupvqe \
+    -ldnvqe \
+    -lsecurec \
+	-live \
+	-lVoiceEngine \
+	-l_hidrc \
+	-l_hidehaze \
+	-l_hildci \
+    -o hircpars \
+    -Os \
+    -s
+```
+example:
+```
+/home/home/src/OpenIPC/openipc-firmware/output/per-package/majestic-plugins/host/bin/arm-openipc-linux-musleabi-gcc     hisilicon/gkrcparams.c        -I.     -Ihisilicon/include     -L/home/home/src/OpenIPC/openipc-firmware/output/target/usr/lib     -lisp       -lmpi   -lmd     -lupvqe     -ldnvqe     -lsecurec         -live   -lVoiceEngine   -l_hidrc        -l_hidehaze     -l_hildci     -o hircpars     -Os     -s
+```
+Sample usage:  
+```gkrcparams --MaxQp 30 --MaxI 2```
 
 Tested on gk7205 and h3516
 majestic must running when calling the app. Changes won't persist if majestic is restarted.
@@ -53,6 +81,6 @@ takes effect, and the QP value in the strong texture area of the image can be in
 SDK and param details here:
 http://fabemo.ru/pcb/ReleaseDoc_v01/zh/01.software/board/HiMPP%20V4.0%20%E5%AA%92%E4%BD%93%E5%A4%84%E7%90%86%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%8F%82%E8%80%83.pdf
 
-# ToDo:
-Should be possible to link to OpenIPC repo downloaded via BuildRoot process.
-
+# Precompiled executable
+hircpars - for HiSilicon
+gkrcparams - for Goke (old version)

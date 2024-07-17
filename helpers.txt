@@ -1,0 +1,2 @@
+
+scp /home/home/src/OpenIPC/openipc-firmware/output/build/majestic-plugins-HEAD/hircpars root@192.168.1.88:/etc/hircpars

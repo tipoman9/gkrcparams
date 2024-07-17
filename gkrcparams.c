@@ -1,6 +1,37 @@
 #include "type.h"
-#include <gk_api_venc.h>
+#include <mpi_ae.h>
+#include <mpi_isp.h>
+#include <mpi_sys.h>
+#include <mpi_venc.h>
+#include <mpi_vpss.h>
+#include <plugin.h>
+
 #include <getopt.h>
+
+
+const char* VENC_RC_MODE_E_to_string(VENC_RC_MODE_E mode) {
+    switch (mode) {
+        case VENC_RC_MODE_H264CBR: return "VENC_RC_MODE_H264CBR";
+        case VENC_RC_MODE_H264VBR: return "VENC_RC_MODE_H264VBR";
+        case VENC_RC_MODE_H264AVBR: return "VENC_RC_MODE_H264AVBR";
+        case VENC_RC_MODE_H264QVBR: return "VENC_RC_MODE_H264QVBR";
+        case VENC_RC_MODE_H264CVBR: return "VENC_RC_MODE_H264CVBR";
+        case VENC_RC_MODE_H264FIXQP: return "VENC_RC_MODE_H264FIXQP";
+        case VENC_RC_MODE_H264QPMAP: return "VENC_RC_MODE_H264QPMAP";
+        case VENC_RC_MODE_MJPEGCBR: return "VENC_RC_MODE_MJPEGCBR";
+        case VENC_RC_MODE_MJPEGVBR: return "VENC_RC_MODE_MJPEGVBR";
+        case VENC_RC_MODE_MJPEGFIXQP: return "VENC_RC_MODE_MJPEGFIXQP";
+        case VENC_RC_MODE_H265CBR: return "VENC_RC_MODE_H265CBR";
+        case VENC_RC_MODE_H265VBR: return "VENC_RC_MODE_H265VBR";
+        case VENC_RC_MODE_H265AVBR: return "VENC_RC_MODE_H265AVBR";
+        case VENC_RC_MODE_H265QVBR: return "VENC_RC_MODE_H265QVBR";
+        case VENC_RC_MODE_H265CVBR: return "VENC_RC_MODE_H265CVBR";
+        case VENC_RC_MODE_H265FIXQP: return "VENC_RC_MODE_H265FIXQP";
+        case VENC_RC_MODE_H265QPMAP: return "VENC_RC_MODE_H265QPMAP";
+        case VENC_RC_MODE_BUTT: return "VENC_RC_MODE_BUTT";
+        default: return "Unknown mode";
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -62,18 +93,57 @@ int main(int argc, char **argv)
              "  --QpMapEn  QpMapEnable [0,1] \n"                              
              "  --help      Display this help\n"
              "sample:  \n"
-             "rcparams --MaxI 10 --MinI 1 \n");
+             "rcparams --MaxI 10 --MinI 1 \n"
+             "Specs:\n"
+            "u32MinIprop\n"
+                          "\tMinimum ratio of I-frames to P-frames\n"
+                          "\tValue range: [1, 100]\n"
+                          "u32MaxIprop\n"
+                          "\tMaximum ratio of I-frames to P-frames\n"
+                          "\tValue range: [u32MinIprop, 100]\n"
+                          "u32MaxQp\n"
+                          "\tMaximum frame QP value for controlling the image quality\n"
+                          "\tValue range: [0, 51]\n"
+                          "u32MinQp\n"
+                          "\tMinimum frame QP value for controlling bit rate fluctuation\n"
+                          "\tValue range: [0, u32MaxQp]\n"
+                          "u32MaxIQp\n"
+                          "\tMaximum QP of an I-frame for controlling the minimum\n"
+                          "\tnumber of bits of an I-frame\n"
+                          "\tValue range: [0, 51]\n"
+                          "u32MinIQp\n"
+                          "\tMinimum QP of an I-frame for controlling the maximum\n"
+                          "\tnumber of bits of an I-frame\n"
+                          "\tValue range: [0, u32MaxIQp]\n"
+                          "s32MaxReEncodeTimes\n"
+                          "\tNumber of times that each frame is re-encoded. The value 0\n"
+                          "\tindicates that the frame is not re-encoded.\n"
+                          "\tValue range: [0, 3]\n"
+                          "bQpMapEn\n"
+                          "\tWhether to enable or disable the QpMap function in CBR\n"
+                          "\tmode\n"
+                          "\tValue range: HI_TRUE or HI_FALSE\n"
+                          "enQpMapMode\n"
+                          "\tMethod of assigning the QP values for CU32 and CU64 when\n"
+                          "\tthe QpMap table is enabled\n"
+
+             );
       exit(1);
     }
   }
 
+  
+  VENC_CHN_ATTR_S chn_attr;
   VENC_RC_PARAM_S params = {0};
 
-  int ret = GK_API_VENC_GetRcParam(0, &params);
+  int ret = HI_MPI_VENC_GetRcParam(0, &params);
   if (ret != GK_SUCCESS){
     fprintf(stderr, "GK_API_VENC_GetRcParam error %d\n", ret);
     exit(1);
   }
+
+  ret = HI_MPI_VENC_GetChnAttr(0,  &chn_attr);
+  fprintf(stderr, "Encoder mode = %d   %s\n", chn_attr.stRcAttr.enRcMode, VENC_RC_MODE_E_to_string(chn_attr.stRcAttr.enRcMode));
 
   MaxIprop = (MaxIprop > -1) ? MaxIprop : params.stParamH265Cbr.u32MaxIprop;
   MinIprop = (MinIprop > -1) ? MinIprop : params.stParamH265Cbr.u32MinIprop;
@@ -129,7 +199,7 @@ int main(int argc, char **argv)
 
   // params.stParamH265Cbr.u32MinQp   = 1;
 
-  ret = GK_API_VENC_SetRcParam(0, &params);
+  ret = HI_MPI_VENC_SetRcParam(0, &params);
   if (ret != GK_SUCCESS){
     fprintf(stderr, "GK_API_VENC_SetRcParam error %d\n", ret);
     exit(1);
@@ -137,7 +207,7 @@ int main(int argc, char **argv)
 
   
   VENC_INTRA_REFRESH_S stIntraRefresh;
-	if ((ret = GK_API_VENC_GetIntraRefresh( 0, &stIntraRefresh)) != GK_SUCCESS) {			
+	if ((ret = HI_MPI_VENC_GetIntraRefresh( 0, &stIntraRefresh)) != GK_SUCCESS) {			
      fprintf(stderr, "Failed GetIntraRefresh %d\n", ret);
      exit(1);
 		
@@ -157,7 +227,7 @@ int main(int argc, char **argv)
     stIntraRefresh.u32ReqIQp=GK_FALSE;
   }
 
-  ret=GK_API_VENC_SetIntraRefresh(0, &stIntraRefresh);
+  ret=HI_MPI_VENC_SetIntraRefresh(0, &stIntraRefresh);
   if (ret != GK_SUCCESS) {
     fprintf(stderr, "GK_API_VENC_SetIntraRefresh error %d\n", ret);
     exit(1);
